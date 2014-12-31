@@ -1,13 +1,14 @@
-load 'deploy'
-load 'deploy/assets'
-load 'config/deploy'
-
 # Load DSL and Setup Up Stages
-# require 'capistrano/setup'
+require 'capistrano/setup'
 
 # Includes default deployment tasks
-# require 'capistrano/deploy'
+require 'capistrano/deploy'
 
+require 'capistrano/rvm'
+
+require 'capistrano/unicorn_nginx'
+require 'capistrano/safe_deploy_to'
+require 'capistrano/postgresql'
 # Includes tasks from other gems included in your Gemfile
 #
 # For documentation on these, see for example:
@@ -27,4 +28,4 @@ load 'config/deploy'
 # require 'capistrano/rails/migrations'
 
 # Loads custom tasks from `lib/capistrano/tasks' if you have any defined.
-# Dir.glob('lib/capistrano/tasks/*.cap').each { |r| import r }
+Dir.glob('lib/capistrano/tasks/*.cap').each { |r| import r }

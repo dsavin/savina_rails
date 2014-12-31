@@ -1,54 +1,41 @@
-require 'rvm/capistrano'
-require 'bundler/capistrano'
-
 set :application, 'savina_rails'
-set :shared_children, shared_children
-set :repository,  'git@github.com:dsavin/savina_rails.git'
+set :repo_url, 'git@github.com:dsavin/savina_rails.git'
+
+# ask :branch, proc { `git rev-parse --abbrev-ref HEAD`.chomp }
+
 set :deploy_to, '/var/www/savina_rails'
 set :scm, :git
-set :branch, 'master'
-set :user, 'deployer'
-set :group, 'www-data'
-set :use_sudo, false
-set :rails_env, 'production'
-set :deploy_via, :copy
-set :ssh_options, { :forward_agent => true, :port => 6629 }
-set :keep_releases, 5
-default_run_options[:pty] = true
-server "37.139.8.137", :app, :web, :db, :primary => true
 
-after "deploy", "deploy:cleanup"
+set :format, :pretty
+set :log_level, :debug
+set :pty, true
+
+set :rvm_ruby_version, '2.1.5@savina_rails'
+# set :linked_files, %w{config/database.yml}
+# set :linked_dirs, %w{bin log tmp/pids tmp/cache tmp/sockets vendor/bundle public/system}
+
+# set :default_env, { path: "/opt/ruby/bin:$PATH" }
+set :keep_releases, 5
 
 namespace :deploy do
-  %w[start stop restart].each do |command|
-    desc "#{command} unicorn server"
-    task command, roles: :app, except: {no_release: true} do
-      run "/etc/init.d/unicorn_#{application} #{command}"
+
+  desc 'Restart application'
+  task :restart do
+    on roles(:app), in: :sequence, wait: 5 do
+      # Your restart mechanism here, for example:
+      execute :touch, release_path.join('tmp/restart.txt')
     end
   end
 
-  task :setup_config, roles: :app do
-    sudo "ln -nfs #{current_path}/config/nginx.conf /etc/nginx/sites-enabled/#{application}"
-    sudo "ln -nfs #{current_path}/config/unicorn_init.sh /etc/init.d/unicorn_#{application}"
-    run "mkdir -p #{shared_path}/config"
-    put File.read("config/production_database.yml"), "#{shared_path}/config/database.yml"
-    puts "Теперь вы можете отредактировать файлы в  #{shared_path}."
-  end
-  after "deploy:setup", "deploy:setup_config"
-
-  task :symlink_config, roles: :app do
-    run "ln -nfs #{shared_path}/config/database.yml #{release_path}/config/database.yml"
-  end
-  after "deploy:finalize_update", "deploy:symlink_config"
-
-  desc "Make sure local git is in sync with remote."
-  task :check_revision, roles: :web do
-    unless `git rev-parse HEAD` == `git rev-parse origin/master`
-      puts "WARNING: HEAD is not the same as origin/master"
-      puts "Run `git push` to sync changes."
-      exit
+  after :restart, :clear_cache do
+    on roles(:web), in: :groups, limit: 3, wait: 10 do
+      # Here we can do anything such as:
+      within release_path do
+        execute :rake, 'cache:clear'
+      end
     end
   end
-  before "deploy", "deploy:check_revision"
+
+  after :finishing, 'deploy:cleanup'
 
 end

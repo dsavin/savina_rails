@@ -5,6 +5,7 @@ require 'capistrano/setup'
 require 'capistrano/deploy'
 
 require 'capistrano/rvm'
+require 'capistrano/bundler'
 
 require 'capistrano/unicorn_nginx'
 require 'capistrano/safe_deploy_to'

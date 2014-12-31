@@ -23,7 +23,7 @@ namespace :deploy do
   task :restart do
     on roles(:app), in: :sequence, wait: 5 do
       # Your restart mechanism here, for example:
-      execute :touch, release_path.join('tmp/restart.txt')
+      # execute :touch, release_path.join('tmp/restart.txt')
     end
   end
 
@@ -39,3 +39,21 @@ namespace :deploy do
   after :finishing, 'deploy:cleanup'
 
 end
+
+namespace :figaro do
+  desc 'SCP transfer figaro configuration to the shared folder'
+  task :setup do
+    on roles(:app) do
+      upload! 'config/application.yml', "#{shared_path}/application.yml", via: :scp
+    end
+  end
+
+  desc 'Symlink application.yml to the release path'
+  task :symlink do
+    on roles(:app) do
+      execute "ln -sf #{shared_path}/application.yml #{current_path}/config/application.yml"
+    end
+  end
+end
+after 'deploy:started', 'figaro:setup'
+after 'deploy:symlink:release', 'figaro:symlink'

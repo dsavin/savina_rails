@@ -20,11 +20,12 @@ gem 'pg'
 gem 'pundit'
 gem 'simple_form'
 gem 'upmin-admin'
+gem 'figaro'
 group :development do
   gem 'better_errors'
   gem 'binding_of_caller', :platforms=>[:mri_21]
   gem 'capistrano', '~> 3.2.1'
-  gem 'capistrano-bundler'
+  gem 'capistrano-bundler', '~> 1.1.3'
   gem 'capistrano-rails', '~> 1.1.0'
   gem 'capistrano-rails-console'
   gem 'capistrano-rvm', '~> 0.1.1'
@@ -41,5 +42,5 @@ group :development, :test do
   gem 'thin'
 end
 group :production do
-  gem 'unicorn'
+  gem 'unicorn', '~> 4.8.3'
 end

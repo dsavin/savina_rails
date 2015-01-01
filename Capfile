@@ -10,6 +10,8 @@ require 'capistrano/bundler'
 require 'capistrano/unicorn_nginx'
 require 'capistrano/safe_deploy_to'
 require 'capistrano/postgresql'
+require 'capistrano/rails/assets'
+#require 'capistrano/rails/migrations'
 # Includes tasks from other gems included in your Gemfile
 #
 # For documentation on these, see for example:

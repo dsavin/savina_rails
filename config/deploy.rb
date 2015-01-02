@@ -1,7 +1,9 @@
 set :application, 'savina_rails'
 set :repo_url, 'git@github.com:dsavin/savina_rails.git'
-
+set :stages, %w(staging production)
+set :default_stage, 'staging'
 # ask :branch, proc { `git rev-parse --abbrev-ref HEAD`.chomp }
+
 
 
 set :scm, :git
